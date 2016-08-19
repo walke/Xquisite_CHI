@@ -1,5 +1,6 @@
 package no.ice_9.xquisite_chi;
 
+import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.DisplayMetrics;
@@ -33,12 +34,15 @@ class XQGLSurfaceView extends GLSurfaceView
 {
     DisplayMetrics mMetrics;
     public final XQGLRenderer mRenderer;
+    private final MainActivity actContext;
 
     public XQGLSurfaceView(Context context, DisplayMetrics metrics, GraphicsClass graphics)
     {
         super(context);
 
         mMetrics=metrics;
+
+        actContext=(MainActivity)context;
 
         setEGLContextClientVersion(2);
 
@@ -47,6 +51,12 @@ class XQGLSurfaceView extends GLSurfaceView
         setRenderer(mRenderer);
     }
 
+    /**
+     * Here GL passes touch actions to the activity
+     * move, press, release
+     * @param e motion event
+     * @return
+     */
     @Override
     public boolean onTouchEvent(MotionEvent e)
     {
@@ -59,9 +69,22 @@ class XQGLSurfaceView extends GLSurfaceView
                 mRenderer.angx=x;
                 mRenderer.angy=y;
 
+                mRenderer.setClick(x,y);
+
+                break;
+
+            case MotionEvent.ACTION_DOWN:
+                mRenderer.setClick(x,y);
+                break;
+            case MotionEvent.ACTION_UP:
+                int[] clickres=mRenderer.getClick(x,y);
+
+                actContext.glTouch(clickres);
                 break;
         }
 
         return true;
     }
+
+
 }
